@@ -11,7 +11,7 @@ public final class ConvertUtils {
     }
 
     public static Object convert(Class<?> clazz, String value) {
-        if (clazz.isPrimitive()) {
+        if (ReflectUtils.isPrimitiveOrBoxing(clazz)) {
             return convertPrimitive(clazz, value);
         } else if (clazz == String.class) {
             // drop quotation marks
@@ -26,7 +26,7 @@ public final class ConvertUtils {
 
     public static Object convertArray(Class<?> clazz, String val) {
         Class<?> componentType = ArrayUtils.findArrayComponentType(clazz);
-        if (componentType.isPrimitive() || componentType == String.class) {
+        if (ReflectUtils.isPrimitiveOrBoxing(componentType) || componentType == String.class) {
             return JsonUtils.toObject(val, clazz);
         } else {// array of custom class
             // 1. convert val to string arrays as the arg of constructor of clazz
@@ -95,12 +95,12 @@ public final class ConvertUtils {
     /**
      * convert literal value to primitive types: boolean, byte, short, integer, long, float, double, character
      *
-     * @param clazz class of primitive type
+     * @param clazz class of primitive type or its boxing type
      * @param value literal value
      * @return the primitive type object. note that you should handle the return value by yourself
      */
     public static Object convertPrimitive(Class<?> clazz, String value) {
-        if (!clazz.isPrimitive()) {
+        if (!ReflectUtils.isPrimitiveOrBoxing(clazz)) {
             throw new IllegalArgumentException(String.format("%s is not a primitive type or its boxing class", clazz.getName()));
         }
 
@@ -121,7 +121,7 @@ public final class ConvertUtils {
         if (Character.class == clazz || Character.TYPE == clazz)
             return convertChar(value);
 
-        throw new RuntimeException(String.format("unreachable, clazz is %s", clazz.getName()));
+        throw new Error("UNREACHABLE");
     }
 
     public static boolean convertBoolean(String val) {
