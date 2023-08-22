@@ -28,7 +28,7 @@ class ArrayUtilsTest {
         assertEquals(3, result);
 
         result = ArrayUtils.findArrayDimension(String.class);
-        assertEquals(1, result);
+        assertEquals(0, result);
     }
 
     @Test
