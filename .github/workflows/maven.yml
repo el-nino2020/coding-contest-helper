@@ -25,7 +25,7 @@ jobs:
         java-version: '8'
         distribution: 'corretto'
     - name: run Maven test
-      run: mvn clean test
+      run: mvn --batch-mode clean test
 
     # # Optional: Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
     # - name: Update dependency graph
