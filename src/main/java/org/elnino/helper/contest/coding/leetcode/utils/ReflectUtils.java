@@ -9,13 +9,13 @@ public class ReflectUtils {
      * Note that {@code Void.class} is not considered as a primitive type in this method
      */
     public static boolean isPrimitiveOrBoxing(Class<?> clazz) {
-        return Boolean.class == clazz || Boolean.TYPE == clazz ||
-                Byte.class == clazz || Byte.TYPE == clazz ||
-                Short.class == clazz || Short.TYPE == clazz ||
-                Integer.class == clazz || Integer.TYPE == clazz ||
-                Long.class == clazz || Long.TYPE == clazz ||
-                Float.class == clazz || Float.TYPE == clazz ||
-                Double.class == clazz || Double.TYPE == clazz ||
-                Character.class == clazz || Character.TYPE == clazz;
+        return Boolean.class == clazz || boolean.class == clazz ||
+                Byte.class == clazz || byte.class == clazz ||
+                Short.class == clazz || short.class== clazz ||
+                Integer.class == clazz || int.class == clazz ||
+                Long.class == clazz || long.class == clazz ||
+                Float.class == clazz || float.class == clazz ||
+                Double.class == clazz || double.class == clazz ||
+                Character.class == clazz || char.class == clazz;
     }
 }

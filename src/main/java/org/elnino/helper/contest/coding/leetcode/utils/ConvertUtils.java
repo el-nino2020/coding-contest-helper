@@ -10,40 +10,53 @@ public final class ConvertUtils {
     private ConvertUtils() {
     }
 
-    public static Object convert(Class<?> clazz, String value) {
+    @SuppressWarnings("unchecked")
+    public static<T> T convert(Class<T> clazz, String value) {
         if (ReflectUtils.isPrimitiveOrBoxing(clazz)) {
-            return convertPrimitive(clazz, value);
+            return (T) convertPrimitive(clazz, value);
         } else if (clazz == String.class) {
             // drop quotation marks
-            return value.substring(1, value.length() - 1);
+            return (T) value.substring(1, value.length() - 1);
         } else if (clazz.isArray()) {
             return convertArray(clazz, value);
         } else {
-            return convertCustomClass(clazz, value);
+            return (T) convertCustomClass(clazz, value);
         }
-//        throw new RuntimeException(String.format("can not convert this clazz: %s", clazz.getName()));
     }
 
-    public static Object convertArray(Class<?> clazz, String val) {
+    @SuppressWarnings("unchecked")
+    public static <T> T convertArray(Class<T> clazz, String val) {
+        if (!clazz.isArray()) {
+            throw new IllegalArgumentException(String.format("%s is not a class of array", clazz.getName()));
+        }
+
         Class<?> componentType = ArrayUtils.findArrayComponentType(clazz);
+
         if (ReflectUtils.isPrimitiveOrBoxing(componentType) || componentType == String.class) {
             return JsonUtils.toObject(val, clazz);
-        } else {// array of custom class
+        } else { // array of custom class
             // 1. convert val to string arrays as the arg of constructor of clazz
             int dimension = ArrayUtils.findArrayDimension(clazz);
             Object[] arr = (Object[]) JsonUtils.toObject(val, ArrayUtils.makeObjectArrayClass(dimension, String.class));
             // 2. build the object array
-            return convertCustomObjectArray(arr, 0, clazz.getComponentType());
+            return (T) convertCustomObjectArray(arr, clazz.getComponentType());
         }
     }
 
     // a recursive function to create multi-dimension array of custom class object
-    private static Object convertCustomObjectArray(Object[] args, int index, Class<?> componentType) {
-        // TODO: treat args as a 1d string array first
-        Object ans = Array.newInstance(componentType, args.length);
-        for (int i = 0; i < args.length; i++) {
-            Array.set(ans, i, convertCustomClass(componentType, (String) args[i]));
+    private static Object[] convertCustomObjectArray(Object[] args, Class<?> componentType) {
+        Object[] ans = (Object[]) Array.newInstance(componentType, args.length);
+
+        if (!componentType.isArray()) {
+            for (int i = 0; i < args.length; i++) {
+                ans[i] = convertCustomClass(componentType, (String) args[i]);
+            }
+        } else {
+            for (int i = 0; i < args.length; i++) {
+                ans[i] = convertCustomObjectArray((Object[]) Array.get(args, i), componentType.getComponentType());
+            }
         }
+
         return ans;
     }
 
@@ -68,28 +81,26 @@ public final class ConvertUtils {
 
 
     /**
-     * initialize an object by calling its 1-arg constructor
+     * Initialize an object by calling 1-arg constructor of the class.
+     * <p>
+     * Make sure that tha class has only 1 1-arg constructor, otherwise there will be exception thrown
+     * <p>
+     * If clazz is an inner class, make it static, otherwise there will be exception thrown
      */
     public static Object convertCustomClass(Class<?> clazz, String arg) {
-        Constructor<?>[] constructors = clazz.getDeclaredConstructors();
         try {
-            int count = 0;
-            // find constructor with 1 args
-            for (Constructor<?> constructor : constructors) {
-                if (constructor.getParameterCount() == 1) count++;
-            }
-            if (count != 1) {
+            Constructor<?>[] constructors = Arrays.stream(clazz.getDeclaredConstructors())
+                    .filter(c -> c.getParameterCount() == 1)
+                    .toArray(Constructor<?>[]::new);
+
+            if (constructors.length != 1) {
                 throw new RuntimeException("can not create instance of class " + clazz.getName());
             }
-            for (Constructor<?> constructor : constructors) {
-                if (constructor.getParameterCount() == 1) {
-                    return constructor.newInstance(convert(constructor.getParameterTypes()[0], arg));
-                }
-            }
+            return constructors[0].newInstance(convert(constructors[0].getParameterTypes()[0], arg));
+
         } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("can not create instance of class " + clazz.getName());
+            throw new RuntimeException(e);
         }
-        throw new RuntimeException("can not create instance of class " + clazz.getName());
     }
 
     /**

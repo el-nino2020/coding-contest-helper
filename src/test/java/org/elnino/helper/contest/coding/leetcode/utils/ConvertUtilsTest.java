@@ -3,6 +3,9 @@ package org.elnino.helper.contest.coding.leetcode.utils;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
+import java.util.Arrays;
+import java.util.stream.IntStream;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ConvertUtilsTest {
@@ -68,21 +71,88 @@ class ConvertUtilsTest {
         assertEquals(1, ConvertUtils.convertPrimitive(Integer.class, "1"));
     }
 
-    @Test
-    void convertArray() {
-    }
 
     @Disabled
     void convert1DArray() {
     }
 
+
+    static class A {
+        int val;
+
+        public A(int val) {
+            this.val = val;
+        }
+    }
+
+    static class B {
+        int val;
+    }
+
+    static class C {
+        int val;
+
+        private C(int val) {
+            this.val = val;
+        }
+    }
+
     @Test
     void convertCustomClass() {
+        Object o = ConvertUtils.convertCustomClass(A.class, "-5");
+        assertEquals(A.class, o.getClass());
+        A a = (A) o;
+        assertEquals(-5, a.val);
+
+        assertThrows(RuntimeException.class, () -> {
+            ConvertUtils.convertCustomClass(B.class, "3");
+        });
+
+        assertThrows(RuntimeException.class, () -> {
+            ConvertUtils.convertCustomClass(C.class, "3");
+        });
+
+        class D {
+            int val;
+
+            public D(int val) {
+                this.val = val;
+            }
+        }
+        assertThrows(RuntimeException.class, () -> {
+            ConvertUtils.convertCustomClass(D.class, "3");
+        });
+    }
+
+    @Test
+    void convertArray() {
+        assertThrows(IllegalArgumentException.class, () -> ConvertUtils.convertArray(int.class, "1"));
+        // primitive class
+        assertArrayEquals(new int[]{1, 2, 3}, ConvertUtils.convertArray(int[].class, "[1, 2, 3]"));
+        assertArrayEquals(new Integer[][]{{1, 2, 3}, {4, 5, 6}},
+                ConvertUtils.convertArray(Integer[][].class, "[[1,2,3],[4,5,6]]"));
+        // custom class
+        int[] args1 = {1, 2, 3, 4};
+        A[] arr1 = ConvertUtils.convertArray(A[].class, Arrays.toString(args1));
+        IntStream.range(0, args1.length).forEach(i -> assertEquals(args1[i], arr1[i].val));
+
+        int[][] args2 = {{5, 6}, {7, 8}};
+        A[][] arr2 = ConvertUtils.convertArray(A[][].class, "[[5,6],[7,8]]");
+        IntStream.range(0, args2.length).forEach(i -> {
+            IntStream.range(0, args2[i].length).forEach(j -> {
+                assertEquals(args2[i][j], arr2[i][j].val);
+            });
+        });
     }
 
 
     @Test
     void convert() {
+        assertEquals(12.3d, ConvertUtils.convert(double.class, "12.3"));
+        assertEquals("raft", ConvertUtils.convert(String.class, "'raft'"));
+        assertArrayEquals(new boolean[]{true, false, true},
+                ConvertUtils.convert(boolean[].class, "[true, false, true]"));
+        assertEquals(-2, ConvertUtils.convert(A.class, "-2").val);
     }
 
 

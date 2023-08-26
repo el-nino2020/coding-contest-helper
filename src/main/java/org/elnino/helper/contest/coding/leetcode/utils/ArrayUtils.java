@@ -25,7 +25,6 @@ public final class ArrayUtils {
      * @return the class object of a {@code dimension}-d array whose component is {@code clazz}
      */
     public static Class<?> makeObjectArrayClass(int dimension, Class<?> clazz) {
-        // TODO 目前只能生成类的数组，不支持 primitive type 的数组
         if (!(dimension >= 1)) {
             throw new IllegalArgumentException("dimension should be greater than 0");
         }
@@ -33,7 +32,27 @@ public final class ArrayUtils {
         for (int i = 0; i < dimension; i++) {
             arraySymbol.append('[');
         }
-        String className = String.format("%sL%s;", arraySymbol, clazz.getCanonicalName());
+        String className;
+
+        if (clazz == boolean.class) {
+            className = arraySymbol + "Z";
+        } else if (clazz == byte.class) {
+            className = arraySymbol + "B";
+        } else if (clazz == char.class) {
+            className = arraySymbol + "C";
+        } else if (clazz == double.class) {
+            className = arraySymbol + "D";
+        } else if (clazz == float.class) {
+            className = arraySymbol + "F";
+        } else if (clazz == int.class) {
+            className = arraySymbol + "I";
+        } else if (clazz == long.class) {
+            className = arraySymbol + "J";
+        } else if (clazz == short.class) {
+            className = arraySymbol + "S";
+        } else {
+            className = String.format("%sL%s;", arraySymbol, clazz.getCanonicalName());
+        }
 
         try {
             return Class.forName(className);

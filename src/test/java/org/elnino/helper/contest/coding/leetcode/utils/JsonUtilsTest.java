@@ -19,5 +19,8 @@ class JsonUtilsTest {
 
         int[] arr3 = JsonUtils.toObject("[1,2]", int[].class);
         assertArrayEquals(new int[]{1, 2}, arr3);
+
+        Integer[] arr4 = JsonUtils.toObject("[1,2]", Integer[].class);
+        assertArrayEquals(arr4, new Integer[]{1, 2});
     }
 }
