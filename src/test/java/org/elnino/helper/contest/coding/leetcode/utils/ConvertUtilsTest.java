@@ -1,5 +1,6 @@
 package org.elnino.helper.contest.coding.leetcode.utils;
 
+import org.elnino.helper.contest.coding.leetcode.utils.LinkedListUtils.ListNode;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
@@ -75,6 +76,24 @@ class ConvertUtilsTest {
     @Disabled
     void convert1DArray() {
     }
+
+    @Test
+    void convertLinkedList() {
+        String args = "[1,2,3]";
+        assertTrue(LinkedListUtils.equal(new ListNode(1, new ListNode(2, new ListNode(3))),
+                ConvertUtils.convertLinkedList(args)));
+
+        args = "[1]";
+        assertTrue(LinkedListUtils.equal(new ListNode(1), ConvertUtils.convertLinkedList(args)));
+
+        args = "[]";
+        assertTrue(LinkedListUtils.equal(null, ConvertUtils.convertLinkedList(args)));
+    }
+
+    @Test
+    void convertBinaryTree() {
+    }
+
 
 
     static class A {

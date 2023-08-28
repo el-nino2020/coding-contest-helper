@@ -4,6 +4,11 @@ import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.Queue;
+
+import static org.elnino.helper.contest.coding.leetcode.utils.BinaryTreeUtils.TreeNode;
+import static org.elnino.helper.contest.coding.leetcode.utils.LinkedListUtils.ListNode;
 
 @SuppressWarnings({"unused"})
 public final class ConvertUtils {
@@ -11,7 +16,7 @@ public final class ConvertUtils {
     }
 
     @SuppressWarnings("unchecked")
-    public static<T> T convert(Class<T> clazz, String value) {
+    public static <T> T convert(Class<T> clazz, String value) {
         if (ReflectUtils.isPrimitiveOrBoxing(clazz)) {
             return (T) convertPrimitive(clazz, value);
         } else if (clazz == String.class) {
@@ -81,6 +86,7 @@ public final class ConvertUtils {
 
 
     /**
+     * TODO: 有了 @Constructor，可以更选择指定的构造器了
      * Initialize an object by calling 1-arg constructor of the class.
      * <p>
      * Make sure that tha class has only 1 1-arg constructor, otherwise there will be exception thrown
@@ -88,6 +94,12 @@ public final class ConvertUtils {
      * If clazz is an inner class, make it static, otherwise there will be exception thrown
      */
     public static Object convertCustomClass(Class<?> clazz, String arg) {
+        if (clazz == ListNode.class) {
+            return convertLinkedList(arg);
+        } else if (clazz == TreeNode.class) {
+            return convertBinaryTree(arg);
+        }
+
         try {
             Constructor<?>[] constructors = Arrays.stream(clazz.getDeclaredConstructors())
                     .filter(c -> c.getParameterCount() == 1)
@@ -102,6 +114,66 @@ public final class ConvertUtils {
             throw new RuntimeException(e);
         }
     }
+
+    public static ListNode convertLinkedList(String input) {
+        int[] args = JsonUtils.toObject(input, int[].class);
+
+        ListNode ans = new ListNode(-1);
+        ListNode ptr = ans;
+
+        for (int val : args) {
+            ptr.next = new ListNode(val);
+            ptr = ptr.next;
+        }
+
+        return ans.next;
+    }
+
+    public static TreeNode convertBinaryTree(String input) {
+        // TODO 待修改
+        input = input.trim();
+        input = input.substring(1, input.length() - 1);
+        if (input.length() == 0) {
+            return null;
+        }
+
+        String[] parts = input.split(",");
+        String item = parts[0];
+        TreeNode root = new TreeNode(Integer.parseInt(item));
+        Queue<TreeNode> nodeQueue = new LinkedList<>();
+        nodeQueue.add(root);
+
+        int index = 1;
+        while (!nodeQueue.isEmpty()) {
+            TreeNode node = nodeQueue.remove();
+
+            if (index == parts.length) {
+                break;
+            }
+
+            item = parts[index++];
+            item = item.trim();
+            if (!item.equals("null")) {
+                int leftNumber = Integer.parseInt(item);
+                node.left = new TreeNode(leftNumber);
+                nodeQueue.add(node.left);
+            }
+
+            if (index == parts.length) {
+                break;
+            }
+
+            item = parts[index++];
+            item = item.trim();
+            if (!item.equals("null")) {
+                int rightNumber = Integer.parseInt(item);
+                node.right = new TreeNode(rightNumber);
+                nodeQueue.add(node.right);
+            }
+        }
+        return root;
+    }
+
 
     /**
      * convert literal value to primitive types: boolean, byte, short, integer, long, float, double, character

@@ -11,4 +11,8 @@ public final class JsonUtils {
         return new GsonBuilder().create().fromJson(json, clazz);
     }
 
+    public static String toString(Object json) {
+        return new GsonBuilder().create().toJson(json);
+    }
+
 }

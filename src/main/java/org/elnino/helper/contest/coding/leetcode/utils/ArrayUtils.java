@@ -1,5 +1,8 @@
 package org.elnino.helper.contest.coding.leetcode.utils;
 
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+
 @SuppressWarnings({"unused"})
 public final class ArrayUtils {
     private ArrayUtils() {
@@ -76,4 +79,22 @@ public final class ArrayUtils {
         }
         return clazz;
     }
+
+    /**
+     * recursively calls the toString() method from the base component of the
+     * array so that a multiple-dimensional array can be properly shown when
+     * outputted
+     */
+    public static String toString(Class<?> clazz, Object arr) {
+        if (!clazz.isArray()) {
+            return arr.toString();
+        }
+        ArrayList<Object> ans = new ArrayList<>();
+        int n = Array.getLength(arr);
+        for (int i = 0; i < n; i++) {
+            ans.add(toString(clazz.getComponentType(), Array.get(arr, i)));
+        }
+        return ans.toString();
+    }
 }
+

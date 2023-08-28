@@ -3,6 +3,7 @@ package org.elnino.helper.contest.coding.leetcode.utils;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class JsonUtilsTest {
 
@@ -22,5 +23,12 @@ class JsonUtilsTest {
 
         Integer[] arr4 = JsonUtils.toObject("[1,2]", Integer[].class);
         assertArrayEquals(arr4, new Integer[]{1, 2});
+    }
+
+    @Test
+    void testToString() {
+        assertEquals("[1,2]", JsonUtils.toString(new int[]{1, 2}));
+        assertEquals("[\"alpha\",\"beta\"]", JsonUtils.toString(new String[]{"alpha", "beta"}));
+        assertEquals("1", JsonUtils.toString(1));
     }
 }

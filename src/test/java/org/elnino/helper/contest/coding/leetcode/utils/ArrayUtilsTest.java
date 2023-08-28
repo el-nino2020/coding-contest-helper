@@ -50,4 +50,11 @@ class ArrayUtilsTest {
         result = ArrayUtils.findArrayComponentType(boolean.class);
         assertEquals(boolean.class, result);
     }
+
+    @Test
+    void testToString() {
+        assertEquals("23", ArrayUtils.toString(Integer.class, 23));
+        assertEquals("[[1, 2], [3, 4]]",
+                ArrayUtils.toString(int[][].class, new int[][]{{1, 2}, {3, 4}}));
+    }
 }
