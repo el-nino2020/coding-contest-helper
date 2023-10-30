@@ -1,11 +1,14 @@
 package org.elnino.helper.contest.coding.leetcode.utils;
 
+import org.elnino.helper.contest.coding.leetcode.annotation.Construct;
+
 import java.lang.reflect.Array;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Parameter;
+import java.util.ArrayDeque;
 import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.stream.IntStream;
 
 import static org.elnino.helper.contest.coding.leetcode.utils.BinaryTreeUtils.TreeNode;
 import static org.elnino.helper.contest.coding.leetcode.utils.LinkedListUtils.ListNode;
@@ -65,54 +68,58 @@ public final class ConvertUtils {
         return ans;
     }
 
-
-    @Deprecated
-    public static Object convert1DArray(Class<?> clazz, String val) {
-        Class<?> componentClass = clazz.getComponentType();
-        if (!clazz.isArray() || componentClass.isArray()) {
-            throw new IllegalArgumentException(String.format("%s is not a 1D array", clazz.getName()));
-        }
-        // drop '[' and ']'
-        val = val.substring(1, val.length() - 1);
-        String[] elements = Arrays.stream(val.split(",")).map(String::trim).filter(s -> s.length() > 0).toArray(String[]::new);
-        Object ans = Array.newInstance(componentClass, elements.length);
-
-        for (int i = 0; i < elements.length; i++) {
-            Array.set(ans, i, elements[i]);
-        }
-
-        return ans;
-    }
-
-
     /**
-     * TODO: 有了 @Constructor，可以更选择指定的构造器了
-     * Initialize an object by calling 1-arg constructor of the class.
+     * Initialize an object by calling the constructor of its class. <br/>
+     * The method will do the following to find which constructor to use:
      * <p>
-     * Make sure that tha class has only 1 1-arg constructor, otherwise there will be exception thrown
+     * 1. Find the constructor with {@code @Construct} Annotation <br/>
+     * 2. If there is no such constructor, find any constructor of the class
+     * <p>
+     * Note that in either case, there should be exactly one such constructor.
+     * Otherwise, it is assumed that no method can be found.
      * <p>
      * If clazz is an inner class, make it static, otherwise there will be exception thrown
      */
-    public static Object convertCustomClass(Class<?> clazz, String arg) {
+    public static Object convertCustomClass(Class<?> clazz, String input) {
         if (clazz == ListNode.class) {
-            return convertLinkedList(arg);
+            return convertLinkedList(input);
         } else if (clazz == TreeNode.class) {
-            return convertBinaryTree(arg);
+            return convertBinaryTree(input);
         }
 
+        Constructor<?>[] constructors;
+        Constructor<?> constructor = null;
         try {
-            Constructor<?>[] constructors = Arrays.stream(clazz.getDeclaredConstructors())
-                    .filter(c -> c.getParameterCount() == 1)
-                    .toArray(Constructor<?>[]::new);
-
-            if (constructors.length != 1) {
-                throw new RuntimeException("can not create instance of class " + clazz.getName());
+            constructors = ReflectUtils.findConstructorsByAnnotation(clazz, Construct.class);
+            if (constructors.length == 1) {
+                constructor = constructors[0];
             }
-            return constructors[0].newInstance(convert(constructors[0].getParameterTypes()[0], arg));
 
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+            if (constructor == null) {
+                constructors = Arrays.stream(clazz.getDeclaredConstructors()).toArray(Constructor<?>[]::new);
+                if (constructors.length == 1) {
+                    constructor = constructors[0];
+                }
+            }
+            if (constructor == null) {
+                throw new RuntimeException("can not create instance of class " + clazz.getName() + " ; No av");
+            }
+            Parameter[] parameters = constructor.getParameters();
+            String[] args = ArrayUtils.parse(input);
+
+            if (parameters.length != args.length) {
+                throw new RuntimeException("invalid argument count. expected: " + parameters.length + ", real: " + args.length);
+            }
+
+            Object[] initArgs = IntStream.range(0, parameters.length)
+                    .mapToObj(i -> ConvertUtils.convert(parameters[i].getType(), args[i]))
+                    .toArray(Object[]::new);
+            return constructor.newInstance(initArgs);
+        } catch (InstantiationException | IllegalAccessException |
+                 InvocationTargetException e) {
             throw new RuntimeException(e);
         }
+
     }
 
     public static ListNode convertLinkedList(String input) {
@@ -129,49 +136,45 @@ public final class ConvertUtils {
         return ans.next;
     }
 
+    /**
+     * @param input a String array representing level order
+     *              traversal of a binary tree
+     * @return root of the binary tree
+     */
     public static TreeNode convertBinaryTree(String input) {
-        // TODO 待修改
-        input = input.trim();
-        input = input.substring(1, input.length() - 1);
-        if (input.length() == 0) {
-            return null;
+        TreeNode emptyNode = new TreeNode();
+
+        TreeNode[] arr = Arrays.stream(ArrayUtils.parse(input))
+                .map(s -> {
+                    if ("null".equals(s)) return emptyNode;
+                    else return new TreeNode(Integer.parseInt(s));
+                })
+                .toArray(TreeNode[]::new);
+
+        if (arr.length == 0) return null;
+
+        TreeNode ans = arr[0];
+        ArrayDeque<TreeNode> que = new ArrayDeque<>();
+        que.addLast(ans);
+
+        for (int i = 1; !que.isEmpty(); i += 2) {
+            TreeNode cur = que.pollFirst();
+            if (cur == emptyNode) continue;
+
+            TreeNode left = i < arr.length ? arr[i] : null;
+            if (left == emptyNode) left = null;
+
+            TreeNode right = (i + 1 < arr.length) ? arr[i + 1] : null;
+            if (right == emptyNode) right = null;
+
+            cur.left = left;
+            cur.right = right;
+
+            if (left != null) que.addLast(left);
+            if (right != null) que.addLast(right);
         }
 
-        String[] parts = input.split(",");
-        String item = parts[0];
-        TreeNode root = new TreeNode(Integer.parseInt(item));
-        Queue<TreeNode> nodeQueue = new LinkedList<>();
-        nodeQueue.add(root);
-
-        int index = 1;
-        while (!nodeQueue.isEmpty()) {
-            TreeNode node = nodeQueue.remove();
-
-            if (index == parts.length) {
-                break;
-            }
-
-            item = parts[index++];
-            item = item.trim();
-            if (!item.equals("null")) {
-                int leftNumber = Integer.parseInt(item);
-                node.left = new TreeNode(leftNumber);
-                nodeQueue.add(node.left);
-            }
-
-            if (index == parts.length) {
-                break;
-            }
-
-            item = parts[index++];
-            item = item.trim();
-            if (!item.equals("null")) {
-                int rightNumber = Integer.parseInt(item);
-                node.right = new TreeNode(rightNumber);
-                nodeQueue.add(node.right);
-            }
-        }
-        return root;
+        return ans;
     }
 
 

@@ -1,6 +1,6 @@
 package org.elnino.helper.contest.coding.leetcode.utils;
 
-import org.elnino.helper.contest.coding.leetcode.annotation.Constructor;
+import org.elnino.helper.contest.coding.leetcode.annotation.Construct;
 
 import java.util.ArrayList;
 
@@ -14,7 +14,7 @@ public class LinkedListUtils {
         public ListNode() {
         }
 
-        @Constructor
+        @Construct
         public ListNode(int x) {
             val = x;
         }

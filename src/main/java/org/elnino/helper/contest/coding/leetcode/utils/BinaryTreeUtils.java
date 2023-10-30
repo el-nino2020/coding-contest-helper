@@ -1,6 +1,6 @@
 package org.elnino.helper.contest.coding.leetcode.utils;
 
-import org.elnino.helper.contest.coding.leetcode.annotation.Constructor;
+import org.elnino.helper.contest.coding.leetcode.annotation.Construct;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -16,7 +16,7 @@ public class BinaryTreeUtils {
         public TreeNode() {
         }
 
-        @Constructor
+        @Construct
         public TreeNode(int x) {
             val = x;
         }
@@ -29,7 +29,7 @@ public class BinaryTreeUtils {
 
         @Override
         public String toString() {
-            return BinaryTreeUtils.toString(this, ToStringType.LEVEL_ORDER);
+            return BinaryTreeUtils.toString(this, ToStringType.ONE_NODE);
         }
     }
 
@@ -146,7 +146,7 @@ public class BinaryTreeUtils {
 
     public static String toStringPrettyPrint(TreeNode root) {
         // TODO
-        return null;
+        throw new UnsupportedOperationException();
     }
 
 

@@ -1,6 +1,6 @@
 package org.elnino.helper.contest.coding.leetcode.utils;
 
-import org.elnino.helper.contest.coding.leetcode.annotation.Constructor;
+import org.elnino.helper.contest.coding.leetcode.annotation.Construct;
 import org.elnino.helper.contest.coding.leetcode.annotation.Entrance;
 import org.junit.jupiter.api.Test;
 
@@ -23,7 +23,7 @@ class ReflectUtilsTest {
         A() {
         }
 
-        @Constructor
+        @Construct
         A(int a, int b) {
         }
 
@@ -47,6 +47,6 @@ class ReflectUtilsTest {
 
     @Test
     void findConstructorsByAnnotation() {
-        assertEquals(1, ReflectUtils.findConstructorsByAnnotation(A.class, Constructor.class).length);
+        assertEquals(1, ReflectUtils.findConstructorsByAnnotation(A.class, Construct.class).length);
     }
 }

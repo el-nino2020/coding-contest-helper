@@ -2,6 +2,7 @@ package org.elnino.helper.contest.coding.leetcode.utils;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 @SuppressWarnings({"unused"})
 public final class ArrayUtils {
@@ -95,6 +96,41 @@ public final class ArrayUtils {
             ans.add(toString(clazz.getComponentType(), Array.get(arr, i)));
         }
         return ans.toString();
+    }
+
+    /**
+     * If input is the same as a json array, then parse it into array of string
+     * <br/><br/>
+     * Here is an example: <br/>
+     * input = "['str', 123, true]" <br/>
+     * ans = {"str", "123", "true" } <br/><br/>
+     * If input represents only 1 element, then it is not necessarily in the form
+     * of a json array, it can be "123" or "[123]". In either case, it is true.
+     */
+    public static String[] parse(String input) {
+        input = input.trim();
+        boolean begin = input.charAt(0) == '[';
+        boolean end = input.charAt(input.length() - 1) == ']';
+
+        if (begin ^ end) {
+            throw new RuntimeException("wrong format of input, see the document of this method");
+        } else if (!begin) {
+            return new String[]{input};
+        }
+
+        return Arrays.stream(input.substring(1, input.length() - 1).split(","))
+                .map(String::trim)
+                .filter(s -> s.length() > 0)
+                .map(s -> {
+                    int len = s.length();
+                    if ((s.charAt(0) == '"' && s.charAt(len - 1) == '"') ||
+                            (s.charAt(0) == '\'' && s.charAt(len - 1) == '\'')) {
+                        return s.substring(1, len - 1);
+                    } else {
+                        return s;
+                    }
+                })
+                .toArray(String[]::new);
     }
 }
 
