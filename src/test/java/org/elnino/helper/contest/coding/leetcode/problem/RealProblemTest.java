@@ -7,7 +7,7 @@ import java.lang.reflect.InvocationTargetException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public class RealProblemTest {
+class RealProblemTest {
 
     /**
      * test problem that uses built-in type
