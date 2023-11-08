@@ -11,7 +11,7 @@ import java.util.HashMap;
  * <a href="https://leetcode.cn/problems/two-sum/description/">LeetCode 2-sum China site</a>
  */
 @SuppressWarnings("all")
-public class Solution {
+class Solution {
     public int[] twoSum(int[] nums, int target) {
         HashMap<Integer, Integer> map = new HashMap<>();
 

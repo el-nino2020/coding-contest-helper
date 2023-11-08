@@ -25,7 +25,7 @@ public class SolutionUtils {
     public static Object[] solve(Object solution, Method method, String[] args, boolean printResult)
             throws InvocationTargetException, IllegalAccessException {
         Parameter[] parameters = method.getParameters();
-
+        method.setAccessible(true);
         if (args.length % parameters.length != 0) {
             throw new IllegalArgumentException(String.format(
                     "wrong number of args, it should be a multiple of %d", parameters.length));

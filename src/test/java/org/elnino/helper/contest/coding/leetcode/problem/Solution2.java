@@ -12,7 +12,7 @@ import static org.elnino.helper.contest.coding.leetcode.utils.BinaryTreeUtils.Tr
  * <a href="https://leetcode.cn/problems/binary-tree-preorder-traversal">
  * LeetCode Binary Tree Preorder Traversal China site</a>
  */
-public class Solution2 {
+class Solution2 {
     public List<Integer> preorderTraversal(TreeNode root) {
         List<Integer> ans = new ArrayList<>();
 

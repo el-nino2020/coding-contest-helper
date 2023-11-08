@@ -9,7 +9,7 @@ import static org.elnino.helper.contest.coding.leetcode.utils.LinkedListUtils.Li
  * <a href="https://leetcode.cn/problems/remove-nth-node-from-end-of-list">
  * LeetCode Remove Nth Node From End of List China site</a>
  */
-public class Solution3 {
+class Solution3 {
     public ListNode removeNthFromEnd(ListNode head, int n) {
         ListNode ans = new ListNode(0, head);
 
